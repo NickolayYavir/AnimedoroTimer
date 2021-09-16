@@ -1,24 +1,21 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 
 class MyPanel extends JPanel {
 
-
+    private JLabel timerLabel = new JLabel("40:00");
     private boolean isTimerStarted = false;
-    private int sessionTime = 2400000;
-    private int seconds = 0;
-    private int minutes = 0;
+    private boolean isStudyTime = true;
+    //private int sessionTime = 2400000; // 40 minutes in milliseconds
+    private int sessionTime = 5000;
+    private String secondString;
+    private String minutesString;
 
-    private String secondString = String.format("%02d", seconds);
-    private String minutesString = String.format("%02d", minutes);
 
     MyPanel() {
 
         JToggleButton startOrPauseButton = new JToggleButton("START", false);
-        JLabel timerLabel = new JLabel("40:00");
         JLabel workOrAnimeLabel = new JLabel("Work");
 
         setPreferredSize(new Dimension(280, 299));
@@ -29,18 +26,35 @@ class MyPanel extends JPanel {
         add(workOrAnimeLabel);
 
         Timer timer = new Timer(1000, e1 -> {
-            sessionTime -= 1000;
-            minutes = (sessionTime / 60000) % 60;
-            seconds = (sessionTime / 1000) % 60;
 
-            secondString = String.format("%02d", seconds);
-            minutesString = String.format("%02d", minutes);
-            timerLabel.setText(minutesString + ":" + secondString);
+            if (isStudyTime) {
+
+                if (sessionTime > 0) {
+                    displayRemainingTime();
+                } else {
+                    isStudyTime = false;
+                    //sessionTime = 1440000; // 24 minutes - average anime episode length
+                    sessionTime = 3000;
+                    workOrAnimeLabel.setText("Anime");
+                }
+
+            } else { // if anime time
+
+                if (sessionTime > 0) {
+                    displayRemainingTime();
+                } else {
+                    isStudyTime = true;
+                    //sessionTime = 2400000; // 40 minutes in milliseconds
+                    sessionTime = 5000;
+                    workOrAnimeLabel.setText("Work");
+                }
+            }
+
 
         });
 
-        startOrPauseButton.addActionListener(e -> {
 
+        startOrPauseButton.addActionListener(e -> {
             if (!isTimerStarted) {
                 startOrPauseButton.setText("PAUSE");
                 timer.start();
@@ -50,7 +64,6 @@ class MyPanel extends JPanel {
                 timer.stop();
                 isTimerStarted = false;
             }
-
         });
 
         this.setBackground(Color.BLACK);
@@ -75,5 +88,12 @@ class MyPanel extends JPanel {
         workOrAnimeLabel.setHorizontalAlignment(JLabel.CENTER);
         workOrAnimeLabel.setForeground(Color.WHITE);
 
+    }
+
+    private void displayRemainingTime() {
+        sessionTime -= 1000;
+        minutesString = String.format("%02d", (sessionTime / 60000) % 60);
+        secondString = String.format("%02d", (sessionTime / 1000) % 60);
+        timerLabel.setText(minutesString + ":" + secondString);
     }
 }
